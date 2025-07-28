@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/services/note_service.dart';
+import '../../../data/models/note_model.dart';
 import '../../../data/services/message_service.dart';
 import '../search/search_page.dart';
 
@@ -9,13 +10,13 @@ class AddNoteDialog {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    final theme = Theme.of(context);
 
     return showDialog<bool>(
       context: context,
-      barrierColor: Colors.black54,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF374151),
-        title: const Text('新增筆記', style: TextStyle(color: Colors.white)),
+        backgroundColor: theme.cardColor,
+        title: Text('新增筆記', style: TextStyle(color: theme.textTheme.titleLarge?.color)),
         content: Form(
           key: formKey,
           child: Column(
@@ -23,17 +24,10 @@ class AddNoteDialog {
             children: [
               TextFormField(
                 controller: titleController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                decoration: InputDecoration(
                   labelText: '標題',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
+                  labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -45,17 +39,10 @@ class AddNoteDialog {
               const SizedBox(height: 16),
               TextFormField(
                 controller: contentController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                decoration: InputDecoration(
                   labelText: '內容',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
+                  labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
                 ),
                 maxLines: 3,
                 validator: (value) {
@@ -71,7 +58,7 @@ class AddNoteDialog {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+            child: Text('取消', style: TextStyle(color: theme.textTheme.bodySmall?.color)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -81,17 +68,17 @@ class AddNoteDialog {
                     titleController.text.trim(),
                     contentController.text.trim(),
                   );
-                  Navigator.pop(context, true);
-                  MessageService.showSuccessMessage(context, '筆記已新增！');
+                  if (context.mounted) {
+                    Navigator.pop(context, true);
+                    MessageService.showSuccessMessage(context, '筆記已新增！');
+                  }
                 } catch (e) {
-                  MessageService.showErrorMessage(context, '新增失敗: $e');
+                  if (context.mounted) {
+                    MessageService.showErrorMessage(context, '新增失敗: $e');
+                  }
                 }
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF374151),
-              foregroundColor: Colors.white,
-            ),
             child: const Text('新增'),
           ),
         ],
@@ -136,59 +123,42 @@ class _NotesPageState extends State<NotesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(_selectedNote != null ? "" : '我的筆記'),
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-        backgroundColor: const Color(0xFF1F2937),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
         leading: _selectedNote != null 
           ? IconButton(
               onPressed: _backToNotesList,
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back),
             )
           : null,
         actions: _selectedNote != null ? [
           if (_isEditing)
             IconButton(
               onPressed: _saveNote,
-              icon: const Icon(Icons.save, color: Colors.white),
+              icon: const Icon(Icons.save),
             )
           else ...[
             IconButton(
               onPressed: _startEditing,
-              icon: const Icon(Icons.edit, color: Colors.white),
+              icon: const Icon(Icons.edit),
             ),
             IconButton(
               onPressed: _deleteNote,
-              icon: const Icon(Icons.delete, color: Colors.white),
+              icon: const Icon(Icons.delete),
             ),
           ],
         ] : [
           IconButton(
             onPressed: _openSearchPage,
-            icon: const Icon(Icons.search, color: Colors.white),
+            icon: const Icon(Icons.search),
           ),
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1F2937),
-              Color(0xFF111827),
-            ],
-            stops: [0.0, 0.3],
-          ),
-        ),
+        color: theme.scaffoldBackgroundColor,
         child: SafeArea(
           child: _selectedNote != null 
             ? _buildNoteDetailView()
@@ -198,8 +168,7 @@ class _NotesPageState extends State<NotesPage> {
       floatingActionButton: _selectedNote == null 
         ? FloatingActionButton(
             onPressed: _addNewNote,
-            backgroundColor: const Color(0xFF374151),
-            child: const Icon(Icons.add, color: Colors.white),
+            child: const Icon(Icons.add),
           )
         : null,
     );
@@ -210,13 +179,15 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Widget _buildNotesListView() {
+    final theme = Theme.of(context);
+    
     if (_noteService.getNotes().isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           '還沒有任何筆記\n點擊右下角按鈕新增筆記',
           style: TextStyle(
             fontSize: 18, 
-            color: Colors.grey,
+            color: theme.textTheme.bodySmall?.color,
             height: 1.5,
           ),
           textAlign: TextAlign.center,
@@ -231,11 +202,6 @@ class _NotesPageState extends State<NotesPage> {
         final note = _noteService.getNotes()[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
-          color: const Color(0xFF374151),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => _showNoteDetail(note),
@@ -250,19 +216,19 @@ class _NotesPageState extends State<NotesPage> {
                       Expanded(
                         child: Text(
                           note.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: theme.textTheme.titleMedium?.color,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
-                        _formatDate(note.date),
-                        style: const TextStyle(
+                        _formatDate(note.createdAt),
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: theme.textTheme.bodySmall?.color,
                         ),
                       ),
                     ],
@@ -270,9 +236,9 @@ class _NotesPageState extends State<NotesPage> {
                   const SizedBox(height: 8),
                   Text(
                     note.content,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
+                      color: theme.textTheme.bodySmall?.color,
                       height: 1.3,
                     ),
                     maxLines: 1,
@@ -290,6 +256,8 @@ class _NotesPageState extends State<NotesPage> {
   Widget _buildNoteDetailView() {
     if (_selectedNote == null) return Container();
     
+    final theme = Theme.of(context);
+    
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -301,11 +269,11 @@ class _NotesPageState extends State<NotesPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF374151),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: theme.shadowColor,
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -318,24 +286,24 @@ class _NotesPageState extends State<NotesPage> {
                   if (_isEditing)
                     TextField(
                       controller: _titleController,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.textTheme.titleLarge?.color,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '輸入標題...',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
                         border: InputBorder.none,
                       ),
                     )
                   else
                     Text(
                       _selectedNote!.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.textTheme.titleLarge?.color,
                       ),
                     ),
                   
@@ -343,29 +311,29 @@ class _NotesPageState extends State<NotesPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
-                      _formatDate(_selectedNote!.date),
-                      style: const TextStyle(
+                      _formatDate(_selectedNote!.createdAt),
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: theme.textTheme.bodySmall?.color,
                       ),
                     ),
                   ),
                   
-                  const Divider(color: Colors.grey),
+                  Divider(color: theme.dividerColor),
                   
                   // 內容
                   Expanded(
                     child: _isEditing
                       ? TextField(
                           controller: _contentController,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            color: Colors.white,
+                            color: theme.textTheme.bodyMedium?.color,
                             height: 1.5,
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: '輸入內容...',
-                            hintStyle: TextStyle(color: Colors.grey),
+                            hintStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
                             border: InputBorder.none,
                           ),
                           maxLines: null,
@@ -375,9 +343,9 @@ class _NotesPageState extends State<NotesPage> {
                       : SingleChildScrollView(
                           child: Text(
                             _selectedNote!.content,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white,
+                              color: theme.textTheme.bodyMedium?.color,
                               height: 1.5,
                             ),
                           ),
@@ -418,20 +386,21 @@ class _NotesPageState extends State<NotesPage> {
 
   // 顯示放棄編輯的對話框
   void _showDiscardEditDialog() {
+    final theme = Theme.of(context);
+    
     showDialog(
       context: context,
-      barrierColor: Colors.black54,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF374151),
-        title: const Text('放棄編輯', style: TextStyle(color: Colors.white)),
-        content: const Text(
+        backgroundColor: theme.cardColor,
+        title: Text('放棄編輯', style: TextStyle(color: theme.textTheme.titleLarge?.color)),
+        content: Text(
           '您有未儲存的修改，確定要放棄編輯嗎？',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: theme.textTheme.bodyMedium?.color),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('繼續編輯', style: TextStyle(color: Colors.grey)),
+            child: Text('繼續編輯', style: TextStyle(color: theme.textTheme.bodySmall?.color)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -442,7 +411,7 @@ class _NotesPageState extends State<NotesPage> {
               });
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Colors.white,
             ),
             child: const Text('放棄'),
@@ -485,18 +454,19 @@ class _NotesPageState extends State<NotesPage> {
 
   void _deleteNote() {
     if (_selectedNote != null) {
+      final theme = Theme.of(context);
+      
       showDialog(
         context: context,
-        barrierColor: Colors.black54,
         builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF374151),
-          title: const Text('刪除筆記', style: TextStyle(color: Colors.white)),
+          backgroundColor: theme.cardColor,
+          title: Text('刪除筆記', style: TextStyle(color: theme.textTheme.titleLarge?.color)),
           content: Text('確定要刪除「${_selectedNote!.title}」這篇筆記嗎？', 
-                      style: const TextStyle(color: Colors.grey)),
+                      style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('取消', style: TextStyle(color: Colors.grey)),
+              child: Text('取消', style: TextStyle(color: theme.textTheme.bodySmall?.color)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -512,7 +482,7 @@ class _NotesPageState extends State<NotesPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.error,
                 foregroundColor: Colors.white,
               ),
               child: const Text('刪除'),

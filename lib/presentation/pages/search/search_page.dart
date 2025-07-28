@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/services/search_service.dart';
 import '../../../data/services/note_service.dart';
+import '../../../data/models/note_model.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -57,61 +58,44 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('搜尋筆記'),
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-        backgroundColor: const Color(0xFF1F2937),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1F2937),
-              Color(0xFF111827),
-            ],
-            stops: [0.0, 0.3],
-          ),
-        ),
+        color: theme.scaffoldBackgroundColor,
         child: Column(
           children: [
             // 搜尋輸入框
             Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF374151),
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF4B5563),
+                  color: theme.dividerColor,
                   width: 1,
                 ),
               ),
               child: TextField(
                 controller: _searchController,
                 onChanged: _onSearchChanged,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.textTheme.bodyMedium?.color),
                 decoration: InputDecoration(
                   hintText: '搜尋標題或內容...',
-                  hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-                  prefixIcon: const Icon(
+                  hintStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
+                  prefixIcon: Icon(
                     Icons.search,
-                    color: Color(0xFF9CA3AF),
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           onPressed: _clearSearch,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.clear,
-                            color: Color(0xFF9CA3AF),
+                            color: theme.textTheme.bodySmall?.color,
                           ),
                         )
                       : null,
@@ -132,8 +116,8 @@ class _SearchPageState extends State<SearchPage> {
                   children: [
                     Text(
                       '找到 ${_searchResults.length} 條結果',
-                      style: const TextStyle(
-                        color: Color(0xFF9CA3AF),
+                      style: TextStyle(
+                        color: theme.textTheme.bodySmall?.color,
                         fontSize: 14,
                       ),
                     ),
@@ -154,10 +138,12 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildSearchResults() {
+    final theme = Theme.of(context);
+    
     if (_isSearching) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+          valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
         ),
       );
     }
@@ -170,15 +156,15 @@ class _SearchPageState extends State<SearchPage> {
             Icon(
               _currentQuery.isEmpty ? Icons.search : Icons.search_off,
               size: 64,
-              color: const Color(0xFF4B5563),
+              color: theme.textTheme.bodySmall?.color,
             ),
             const SizedBox(height: 16),
             Text(
               _currentQuery.isEmpty 
                   ? '輸入關鍵字開始搜尋' 
                   : '沒有找到匹配的筆記',
-              style: const TextStyle(
-                color: Color(0xFF9CA3AF),
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 16,
               ),
             ),
@@ -186,8 +172,8 @@ class _SearchPageState extends State<SearchPage> {
               const SizedBox(height: 8),
               Text(
                 '嘗試使用不同的關鍵字',
-                style: const TextStyle(
-                  color: Color(0xFF6B7280),
+                style: TextStyle(
+                  color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                   fontSize: 14,
                 ),
               ),
@@ -209,14 +195,15 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildSearchResultItem(SearchResult searchResult, int index) {
     final note = searchResult.note;
+    final theme = Theme.of(context);
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF374151),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF4B5563),
+          color: theme.dividerColor,
           width: 1,
         ),
       ),
@@ -228,8 +215,8 @@ class _SearchPageState extends State<SearchPage> {
             Expanded(
               child: Text(
                 note.title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: theme.textTheme.titleMedium?.color,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -246,8 +233,8 @@ class _SearchPageState extends State<SearchPage> {
             const SizedBox(height: 8),
             Text(
               searchResult.getHighlightedContentPreview(maxLength: 80),
-              style: const TextStyle(
-                color: Color(0xFFD1D5DB),
+              style: TextStyle(
+                color: theme.textTheme.bodyMedium?.color,
                 fontSize: 14,
               ),
               maxLines: 2,
@@ -255,9 +242,9 @@ class _SearchPageState extends State<SearchPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              _formatDate(note.date),
-              style: const TextStyle(
-                color: Color(0xFF9CA3AF),
+              _formatDate(note.createdAt),
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 12,
               ),
             ),
@@ -313,7 +300,7 @@ class _SearchPageState extends State<SearchPage> {
     final int actualIndex = allNotes.indexWhere((n) => 
         n.title == note.title && 
         n.content == note.content && 
-        n.date == note.date
+        n.createdAt == note.createdAt
     );
     
     Navigator.pop(context, {

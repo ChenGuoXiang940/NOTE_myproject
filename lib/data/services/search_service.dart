@@ -1,4 +1,5 @@
 import 'package:note_myproject/data/services/note_service.dart';
+import 'package:note_myproject/data/models/note_model.dart';
 
 class SearchService {
   static final SearchService _instance = SearchService._internal();

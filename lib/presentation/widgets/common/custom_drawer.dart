@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/services/theme_service.dart';
-import '../../pages/settings/new_settings_page.dart';
+import '../../pages/settings/settings_page.dart';
 import '../../pages/notes/notes_page.dart';
 
 class CustomDrawer extends StatefulWidget{

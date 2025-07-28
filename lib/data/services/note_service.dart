@@ -2,36 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-
-class Note {
-  final String title;
-  final DateTime date;
-  final String content;
-
-  Note({
-    required this.title,
-    required this.date,
-    required this.content,
-  });
-
-  // 轉換為 JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'date': date.millisecondsSinceEpoch,
-      'content': content,
-    };
-  }
-
-  // 從 JSON 創建 Note
-  factory Note.fromJson(Map<String, dynamic> json) {
-    return Note(
-      title: json['title'],
-      date: DateTime.fromMillisecondsSinceEpoch(json['date']),
-      content: json['content'],
-    );
-  }
-}
+import '../models/note_model.dart';
 
 class NoteService {
   static final NoteService _instance = NoteService._internal();
@@ -74,9 +45,11 @@ class NoteService {
   
   Future<void> addNote(String title, String content) async {
     final note = Note(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
-      date: DateTime.now(),
       content: content,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
     _notes.add(note);
     await _saveNotes();
@@ -95,10 +68,11 @@ class NoteService {
   
   Future<void> updateNote(int index, String title, String content) async {
     if (index >= 0 && index < _notes.length) {
-      _notes[index] = Note(
+      final existingNote = _notes[index];
+      _notes[index] = existingNote.copyWith(
         title: title,
-        date: DateTime.now(),
         content: content,
+        updatedAt: DateTime.now(),
       );
       await _saveNotes();
     }
