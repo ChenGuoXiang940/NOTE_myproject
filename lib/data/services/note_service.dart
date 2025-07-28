@@ -68,6 +68,7 @@ class NoteService {
       await _notesFile.writeAsString(jsonString);
     } catch (e) {
       // 處理保存筆記時的錯誤
+      debugPrint('保存筆記時發生錯誤: $e');
     }
   }
   

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'note_service.dart';
-import 'search_service.dart';
+import '../../../data/services/search_service.dart';
+import '../../../data/services/note_service.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});

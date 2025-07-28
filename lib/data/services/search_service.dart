@@ -1,4 +1,4 @@
-import 'note_service.dart';
+import 'package:note_myproject/data/services/note_service.dart';
 
 class SearchService {
   static final SearchService _instance = SearchService._internal();

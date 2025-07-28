@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
-import 'message_service.dart';
+import '../home/home_page.dart';
+import '../../../data/services/message_service.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -60,7 +60,7 @@ class LoginFormState extends State<LoginForm> {
 
   void validateAndSubmit(BuildContext context){
     if (_userC.text.isEmpty || _passwordC.text.isEmpty) {
-      MessagePage.showMessage(context, '請輸入使用者名稱和密碼');
+      MessageService.showMessage(context, '請輸入使用者名稱和密碼');
     } else {
       setState(() {
         _isLoading = true;
@@ -221,7 +221,7 @@ class LoginFormState extends State<LoginForm> {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                MessagePage.showMessage(context, '忘記密碼功能尚未實作');
+                MessageService.showMessage(context, '忘記密碼功能尚未實作');
               },
               child: Text(
                 '忘記密碼？',

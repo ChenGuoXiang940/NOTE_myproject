@@ -1,37 +1,41 @@
 import 'package:flutter/material.dart';
-import 'drawer.dart';
-import 'setting_page.dart';
-import 'notes_page.dart';
-import 'addnote_service.dart';
-import 'search_page.dart';
+import '../../widgets/common/custom_drawer.dart';
+import '../settings/settings_page.dart';
+import '../notes/notes_page.dart';
+import '../search/search_page.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
+        titleTextStyle: TextStyle(
+          color: theme.appBarTheme.foregroundColor,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
-        backgroundColor: const Color(0xFF6366F1),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      drawer: const Catalog(),
+      drawer: const CustomDrawer(),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF6366F1),
-              Color(0xFFF8FAFC),
-            ],
-            stops: [0.0, 0.3],
+            colors: isDarkMode
+                ? [
+                    theme.colorScheme.surface,
+                    Colors.black,
+                  ]
+                : [
+                    const Color(0xFF6366F1),
+                    const Color(0xFFF8FAFC),
+                  ],
+            stops: const [0.0, 0.3],
           ),
         ),
         child: SafeArea(
@@ -47,20 +51,20 @@ class HomePage extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.black87,
+                        color: isDarkMode ? Colors.white.withValues(alpha: 0.1) : Colors.black87,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.note_alt_outlined,
-                        color: Colors.white,
+                        color: isDarkMode ? Colors.white : Colors.white,
                         size: 40,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       '歡迎使用筆記應用程式！',
                       style: TextStyle(
-                        color: Colors.black87,
+                        color: isDarkMode ? Colors.white : Colors.black87,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -70,7 +74,7 @@ class HomePage extends StatelessWidget {
                     Text(
                       '開始記錄您的想法和靈感',
                       style: TextStyle(
-                        color: Colors.black87,
+                        color: isDarkMode ? Colors.white70 : Colors.black87,
                         fontSize: 16,
                       ),
                       textAlign: TextAlign.center,
@@ -84,9 +88,9 @@ class HomePage extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1F2937),
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? Colors.black : const Color(0xFF1F2937),
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
@@ -94,12 +98,12 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         '快速操作',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: isDarkMode ? Colors.white : Colors.white,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -128,10 +132,7 @@ class HomePage extends StatelessWidget {
                               subtitle: '建立新的筆記',
                               color: const Color(0xFF10B981),
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const AddNotePage()),
-                                );
+                                Navigator.pushNamed(context, '/add-note');
                               },
                             ),
                             
@@ -143,10 +144,7 @@ class HomePage extends StatelessWidget {
                               subtitle: '瀏覽所有筆記',
                               color: const Color(0xFF3B82F6),
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const NotesPage()),
-                                );
+                                Navigator.pushNamed(context, '/notes');
                               },
                             ),
                             
@@ -189,7 +187,7 @@ class HomePage extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const SettingPage()),
+                                  MaterialPageRoute(builder: (context) => const SettingsPage()),
                                 );
                               },
                             ),
@@ -217,8 +215,12 @@ class HomePage extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    
     return Card(
       elevation: 4,
+      color: isDarkMode ? Colors.grey[900] : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -233,7 +235,7 @@ class HomePage extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color..withValues(alpha: 0.1),
+                color.withValues(alpha: 0.1),
                 color.withValues(alpha: 0.05),
               ],
             ),
@@ -260,7 +262,7 @@ class HomePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: isDarkMode ? Colors.white : Colors.black87,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -269,7 +271,7 @@ class HomePage extends StatelessWidget {
                 subtitle,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.black87,
+                  color: isDarkMode ? Colors.white70 : Colors.black87,
                 ),
                 textAlign: TextAlign.center,
               ),

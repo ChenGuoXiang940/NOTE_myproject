@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'setting_page.dart';
-import 'notes_page.dart';
-class Catalog extends StatefulWidget{
-  const Catalog({super.key});
+import 'package:provider/provider.dart';
+import '../../../core/services/theme_service.dart';
+import '../../pages/settings/new_settings_page.dart';
+import '../../pages/notes/notes_page.dart';
+
+class CustomDrawer extends StatefulWidget{
+  const CustomDrawer({super.key});
 
   @override
-  State<Catalog> createState() => CatalogState();
+  State<CustomDrawer> createState() => _CustomDrawerState();
 }
 
-class CatalogState extends State<Catalog> {
+class _CustomDrawerState extends State<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -120,6 +123,52 @@ class CatalogState extends State<Catalog> {
                 },
               ),
             ),
+            // 主題切換按鈕
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Consumer<ThemeService>(
+                builder: (context, themeService, child) {
+                  return ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    title: Text(
+                      themeService.isDarkMode ? "淺色主題" : "深色主題",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    trailing: Switch(
+                      value: themeService.isDarkMode,
+                      onChanged: (bool value) {
+                        themeService.toggleTheme();
+                      },
+                      activeColor: Colors.white,
+                      activeTrackColor: Colors.white.withValues(alpha: 0.3),
+                      inactiveThumbColor: Colors.white70,
+                      inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+                    ),
+                    onTap: () {
+                      themeService.toggleTheme();
+                    },
+                  );
+                },
+              ),
+            ),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
@@ -154,7 +203,7 @@ class CatalogState extends State<Catalog> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingPage()),
+                    MaterialPageRoute(builder: (context) => const SettingsPage()),
                   );
                 },
               ),

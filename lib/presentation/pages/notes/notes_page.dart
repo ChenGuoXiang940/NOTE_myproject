@@ -1,8 +1,105 @@
 import 'package:flutter/material.dart';
-import 'note_service.dart';
-import 'message_service.dart';
-import 'addnote_service.dart';
-import 'search_page.dart';
+import '../../../data/services/note_service.dart';
+import '../../../data/services/message_service.dart';
+import '../search/search_page.dart';
+
+// AddNoteDialog class for creating new notes
+class AddNoteDialog {
+  static Future<bool?> show(BuildContext context) async {
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF374151),
+        title: const Text('新增筆記', style: TextStyle(color: Colors.white)),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '標題',
+                  labelStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return '請輸入標題';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: contentController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '內容',
+                  labelStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                ),
+                maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return '請輸入內容';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                try {
+                  await NoteService().addNote(
+                    titleController.text.trim(),
+                    contentController.text.trim(),
+                  );
+                  Navigator.pop(context, true);
+                  MessageService.showSuccessMessage(context, '筆記已新增！');
+                } catch (e) {
+                  MessageService.showErrorMessage(context, '新增失敗: $e');
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF374151),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('新增'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class NotesPage extends StatefulWidget {
   final Note? initialSelectedNote;
   
@@ -378,10 +475,10 @@ class _NotesPageState extends State<NotesPage> {
             _selectedNote = _noteService.getNotes()[noteIndex];
             _isEditing = false;
           });
-          MessagePage.showMessage(context, '筆記已儲存！');
+          MessageService.showSuccessMessage(context, '筆記已儲存！');
         }
       } else {
-        MessagePage.showMessage(context, '請填寫完整的標題和內容');
+        MessageService.showErrorMessage(context, '請填寫完整的標題和內容');
       }
     }
   }
@@ -411,7 +508,7 @@ class _NotesPageState extends State<NotesPage> {
                     _isEditing = false;
                   });
                   Navigator.pop(context);
-                  MessagePage.showMessage(context, '筆記已刪除！');
+                  MessageService.showSuccessMessage(context, '筆記已刪除！');
                 }
               },
               style: ElevatedButton.styleFrom(
